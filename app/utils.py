@@ -8,16 +8,10 @@ def read_log_file(file_path):
     Returns:
         list: List of lines from the log file.
     """
-    try:
-        with open(file_path, 'r') as file:
-            return file.readlines()
-    except FileNotFoundError:
-        print(f"Error: File '{file_path}' not found.")
-        return []
-    except Exception as e:
-        print(f"Error reading the file '{file_path}': {e}")
-        return []
-    
+    with open(file_path, 'r') as file:
+        return file.readlines()
+
+
 def print_log_lines(file_path):
     """
     Print each line of the log file.

@@ -56,7 +56,7 @@ class SyslogFedoraParser:
     # Regular expression to parse the syslog format
     pattern = re.compile(
             r'(?P<timestamp>\w{3} \d{1,2} \d{2}:\d{2}:\d{2}) '  # Timestamp
-            r'(?P<hostname>\S+) '                              # Hostname
+            r'(?P<hostname>\S+) '                               # Hostname
             r'(?P<service>\S+): '                               # Service/Program
             r'(?P<message>.+)'                                  # Message
         )
