@@ -1,4 +1,5 @@
 import argparse
+from logformat import LogFormat
 
 def parse_arguments():
     """
@@ -13,7 +14,7 @@ def parse_arguments():
     parser.add_argument('file_path', type=str, help='Path to the log file to be parsed.')
 
     # Argument for the log format (e.g., "CLF", "Syslog", ...)
-    parser.add_argument('-f', '--format', type=str, default='CLF', help='The format of the log file (e.g., "CLF", "Syslog"). Default is "CLF".')
+    parser.add_argument('-f', '--format', type=str, choices=[log_format.value for log_format in LogFormat], default=LogFormat.CLF.value, help='The format of the log file.')
 
     # Optional: Additional arguments, such as filter options, can be added here.
     parser.add_argument('-p', '--print', action='store_true', help='Just print the parsed log file.')

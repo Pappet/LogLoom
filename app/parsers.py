@@ -1,4 +1,5 @@
 import re
+from logformat import LogFormat
 
 class BaseParser:
     """
@@ -79,12 +80,12 @@ def get_parser_for_format(log_format):
     Returns:
         BaseParser: An instance of the appropriate parser.
     """
-    if log_format == "CLF":
+    if log_format == LogFormat.CLF.value:
         return CLFParser()
     # Add more formats as needed, e.g.:
-    elif log_format == "Syslog":
+    elif log_format == LogFormat.SYSLOG.value:
         return SyslogParser()
-    elif log_format == "Fedora":
+    elif log_format == LogFormat.FEDORA.value:
         return SyslogFedoraParser()
     else:
         raise ValueError(f"Unsupported log format: {log_format}")

@@ -1,15 +1,16 @@
 def read_log_file(file_path):
     """
-    Read a log file and return its lines.
+    Read a log file and yield its lines.
     
     Args:
         file_path (str): Path to the log file to be read.
     
-    Returns:
-        list: List of lines from the log file.
+    Yields:
+        str: A line from the log file.
     """
     with open(file_path, 'r') as file:
-        return file.readlines()
+        for line in file:
+            yield line
 
 
 def print_log_lines(file_path):
@@ -19,11 +20,5 @@ def print_log_lines(file_path):
     Args:
         file_path (str): Path to the log file to be printed.
     """
-    lines = read_log_file(file_path)
-    
-    if not lines:
-        print(f"No content found in '{file_path}'.")
-        return
-    
-    for line in lines:
-        print(line, end="")  # The 'end=""' prevents double line breaks, as the lines will already have newline characters.
+    for line in read_log_file(file_path):
+        print(line, end="")  # Prevents double line breaks
