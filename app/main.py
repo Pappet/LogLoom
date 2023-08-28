@@ -1,7 +1,7 @@
 # Import necessary functions and modules
 from cli import parse_arguments
 from utils import read_log_file, print_log_lines
-from parsers import get_parser_for_format
+from parsers import parsers_util
 
 def main():
     try:    
@@ -14,7 +14,7 @@ def main():
             return
 
         # Get the appropriate parser based on the format
-        parser = get_parser_for_format(args.format)
+        parser = parsers_util.get_parser_for_format(args.format)
 
         # Read the log file and parse lines
         parsed_data = []

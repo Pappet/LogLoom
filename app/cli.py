@@ -1,5 +1,5 @@
 import argparse
-from logformat import LogFormat
+from parsers.log_format import LogFormat
 
 def parse_arguments():
     """
