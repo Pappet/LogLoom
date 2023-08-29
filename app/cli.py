@@ -1,5 +1,6 @@
 import argparse
 from parsers.log_format import LogFormat
+from parsers.clf_parser import analyze_clf_data
 from utils import *
 
 
@@ -23,7 +24,7 @@ def parse_arguments():
 
     # Optional: Additional arguments, such as filter options, can be added here.
     parser.add_argument('-p', '--print', action='store_true',
-                        help='Just print the parsed log file.')
+                        help='Just print the log file without parsing.')
 
     args = parser.parse_args()
     return args
@@ -50,6 +51,7 @@ def display_available_keys(keys):
     print("\nAvailable keys in the parsed data:")
     for idx, key in enumerate(keys, 1):
         print(f"{idx}. {key}")
+    print("0. EVERYTHING")
 
 
 def get_user_choice(keys):
@@ -70,8 +72,13 @@ def get_user_choice(keys):
         if choice.endswith(","):
             choice = choice[:-1]
 
+        # q for closing the app
         if choice == 'q':
             return 'q'
+
+        # 0 for getting all keys
+        if choice == '0':
+            return keys
 
         selected_keys = []
         invalid_choice = False
@@ -89,27 +96,54 @@ def get_user_choice(keys):
             return selected_keys
 
 
-def print_selected_data(parsed_data, selected_keys):
+def print_selected_data(parsed_data, selected_keys, max_width=50):
     """
-    Print the values of the selected keys from the parsed data.
+    Print the values of the selected keys from the parsed data with adjusted width.
 
     Args:
         parsed_data (list): List of dictionaries containing the parsed log entries.
         selected_keys (list): List of selected keys to print.
+        max_width (int): Maximum width for any column.
     """
+
+    # Step 1: Determine the maximum width for each key
+    key_widths = {}
+    for key in selected_keys:
+        # Getting the max length of the values associated with a key
+        max_length = max(len(str(entry[key])) for entry in parsed_data)
+        # Include the key's own length in the consideration
+        max_length = max(max_length, len(key))
+        # Limiting the width to the max_width parameter
+        key_widths[key] = min(max_length, max_width)
+
+    # Print a separator
+    print('-' * (sum(key_widths.values()) + len(selected_keys) * 5 - 3))
+    # Print the headers (keys) first
+    header_values = [key.ljust(key_widths[key]) for key in selected_keys]
+    print("  |  ".join(header_values))
+    # Print a separator
+    print('-' * (sum(key_widths.values()) + len(selected_keys) * 5 - 3))
+
+    # Step 2: Print the data using the determined widths
     for entry in parsed_data:
-        # Create a list of the values for each selected key and join them with the separator
-        values_to_print = [entry[key] for key in selected_keys]
-        print("  |  ".join(values_to_print))
+        formatted_values = [str(entry[key]).ljust(key_widths[key])
+                            for key in selected_keys]
+        print("  |  ".join(formatted_values))
 
 
-def user_interaction(parsed_data):
+def user_interaction2(parsed_data):
     """
     Interact with the user: display available keys, get user's choice, and display selected data.
 
     Args:
         parsed_data (list): Parsed log data.
     """
+    # Welcome text
+    display_welcome_message()
+
+    # Print the analyzed log file
+    analyze_clf_data(parsed_data)
+
     keys = list(parsed_data[0].keys())
     while True:
         display_available_keys(keys)
@@ -121,3 +155,40 @@ def user_interaction(parsed_data):
         if not selected_keys:
             continue
         print_selected_data(parsed_data, selected_keys)
+
+
+def user_interaction(parsed_data):
+    """
+    Interact with the user: display available keys, get user's choice, and display selected data.
+
+    Args:
+        parsed_data (list): Parsed log data.
+    """
+    # Welcome text
+    display_welcome_message()
+
+    action = input(
+        "Would you like to (A)nalyze the log or (S)elect keys to view? Enter 'A' or 'S'. Or enter 'Q' to quit: ").lower()
+
+    if action == 'q':
+        print("Exiting the program. Goodbye!")
+        return
+
+    if action == 'a':
+        # Print the analyzed log file
+        analyze_clf_data(parsed_data)
+
+    elif action == 's':
+        keys = list(parsed_data[0].keys())
+        while True:
+            display_available_keys(keys)
+            selected_keys = get_user_choice(keys)
+
+            if selected_keys == 'q':
+                print("Exiting the program. Goodbye!")
+                break
+            if not selected_keys:
+                continue
+            print_selected_data(parsed_data, selected_keys)
+    else:
+        print("Invalid choice. Please select 'A' or 'S'.")

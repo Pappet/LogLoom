@@ -1,19 +1,16 @@
 # LogLoom
 
-A powerful and modular log-parsing tool designed to transform log files into structured and analyzable data.
+In today's digital age, applications, services, and systems often leave behind digital footprints in the form of log files. These logs often hold the key to understanding system behaviors, troubleshooting issues, and ensuring optimal performance. But how does one navigate this dense forest of data?
 
-## Overview
+Enter LogLoom.
 
-LogLoom makes it easier to understand and analyze your log data. Whether you're dealing with web server logs, system logs, or custom application logs, LogLoom can help you parse, filter, and visualize your data seamlessly.
+LogLoom isn’t just another log analysis tool; it’s your compass in the intricate world of log data. With an easy-to-use command-line interface and a modular architecture, it empowers you to sift through, analyze, and comprehend log files of various formats with ease.
 
-# Planed Features
+## Key Features:
 
-* **Modular Parsing** : Support for multiple standardized log formats with an extensible architecture to add custom formats.
-* **Filtering Capabilities** : Easily filter your parsed data based on specific criteria.
-* **Statistical Analysis** : Get insights on event frequencies, high-load times, and more.
-* **Anomaly Detection** : Identify unusual patterns or behaviors in your logs.
-* **Visualization** : Generate visual representations of your log data (future integration).
-* **Full-text Search** : Quickly search for specific terms or patterns across vast log files (future integration).
+* **Modular Architecture**: Seamlessly integrate parsers for new log formats.
+* **User-centric Analysis**: Gain valuable insights into your log data at a glance, from timestamps to status codes.
+* **Filter and Display**: Showcase only the information you need, in a formatted and easily digestible manner.
 
 ## Usage
 
@@ -24,7 +21,7 @@ LogLoom makes it easier to understand and analyze your log data. Whether you're 
 
 ## Installation
 
-Details on how to install and set up LogLoom.
+TODO: Details on how to install and set up LogLoom.
 
 ## Contributing
 
