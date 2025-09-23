@@ -99,26 +99,21 @@ def count_lines_in_list(lst):
 
 def analyze_log_data(parsed_data, config):
     insights = {}
+    # Check if a config is provided and is not empty
+    if not config:
+        return insights
+        
     for key, functions in config.items():
-        for function in functions:
-            items = [entry[key] for entry in parsed_data]
-            result = function(items)
-            if key in insights:
-                insights[key].update(result)
-            else:
-                insights[key] = result
+        # Ensure the key exists in the parsed data to avoid errors
+        if parsed_data and key in parsed_data[0]:
+            items = [entry[key] for entry in parsed_data if key in entry]
+            if not items:
+                continue
+
+            for function in functions:
+                result = function(items)
+                if key in insights:
+                    insights[key].update(result)
+                else:
+                    insights[key] = result
     return insights
-
-
-clf_config = {
-    "timestamp": [get_range, time_difference],
-    "status": [get_counts],
-    "ip": [get_counts]
-}
-
-systemd_config = {
-    "timestamp": [get_range, time_difference],
-    "hostname": [get_counts],
-    "service": [get_counts],
-    "pid": [get_counts]
-}

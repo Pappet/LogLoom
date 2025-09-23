@@ -16,17 +16,17 @@ def main():
             print_log_lines(args.file_path)
             return
 
-        parsed_data = parsers_util.process_log_file(
+        parsed_data, parser_instance = parsers_util.process_log_file(
             args.file_path, args.format)
 
         # If there's any parsed data, proceed with user interaction
         if parsed_data:
-            user_interaction(parsed_data, args)
+            user_interaction(parsed_data, args, parser_instance)
         else:
-            print("No data was parsed from the log file.")
+            print("No data was parsed from the log file. Check the file format and content.")
     # Handle possible exceptions
-    except FileNotFoundError as e:
-        print(f"Error: {e}")
+    except FileNotFoundError:
+        print(f"Error: The file '{args.file_path}' was not found.")
     except ValueError as e:
         print(f"Invalid value: {e}")
     except Exception as e:

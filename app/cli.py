@@ -1,6 +1,5 @@
 import argparse
 from parsers.log_format import LogFormat
-from parsers.clf_parser import analyze_clf_data
 from utils import *
 from output_cli import display_insights
 
@@ -68,7 +67,7 @@ def print_selected_data(parsed_data, selected_keys, max_width=50):
     key_widths = {}
     for key in selected_keys:
         # Getting the max length of the values associated with a key
-        max_length = max(len(str(entry[key])) for entry in parsed_data)
+        max_length = max(len(str(entry.get(key, ''))) for entry in parsed_data)
         # Include the key's own length in the consideration
         max_length = max(max_length, len(key))
         # Limiting the width to the max_width parameter
@@ -84,7 +83,7 @@ def print_selected_data(parsed_data, selected_keys, max_width=50):
 
     # Step 2: Print the data using the determined widths
     for entry in parsed_data:
-        formatted_values = [str(entry[key]).ljust(key_widths[key])
+        formatted_values = [str(entry.get(key, '')).ljust(key_widths[key])
                             for key in selected_keys]
         print("  |  ".join(formatted_values))
 
@@ -169,12 +168,14 @@ def get_user_choice(keys):
         return selected_keys
 
 
-def user_interaction(parsed_data, args):
+def user_interaction(parsed_data, args, parser_instance):
     """
     Interact with the user: display available keys, get user's choice, and display selected data.
 
     Args:
         parsed_data (list): Parsed log data.
+        args (Namespace): Command-line arguments.
+        parser_instance (BaseParser): The parser used to process the log file.
     """
     display_welcome_message()
 
@@ -189,12 +190,23 @@ def user_interaction(parsed_data, args):
             break
 
         if action == 'a':
-            insights = analyze_log_data(parsed_data, systemd_config)
+            # Get the analysis config from the parser instance
+            config = getattr(parser_instance, 'analysis_config', {})
+            if not config:
+                print("\nAnalysis is not supported for this log format.")
+                continue
+
+            insights = analyze_log_data(parsed_data, config)
             lines_in_file = count_lines_in_file(args.file_path)
             lines_in_parsed_data = count_lines_in_list(parsed_data)
             display_insights(insights, lines_in_file, lines_in_parsed_data)
-            # analyze_clf_data(parsed_data)
+
         elif action == 's':
+            # Check if parsed_data is not empty before accessing its elements
+            if not parsed_data:
+                print("No data available to display.")
+                continue
+            
             keys = list(parsed_data[0].keys())
             while True:
                 display_available_keys(keys)
@@ -206,5 +218,6 @@ def user_interaction(parsed_data, args):
                 if not selected_keys:
                     continue
                 print_selected_data(parsed_data, selected_keys)
+                
         elif action == 'w':
             display_welcome_message()
