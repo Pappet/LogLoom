@@ -21,7 +21,7 @@ def main():
 
         # If there's any parsed data, proceed with user interaction
         if parsed_data:
-            user_interaction(parsed_data)
+            user_interaction(parsed_data, args)
         else:
             print("No data was parsed from the log file.")
     # Handle possible exceptions

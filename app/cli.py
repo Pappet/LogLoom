@@ -2,6 +2,7 @@ import argparse
 from parsers.log_format import LogFormat
 from parsers.clf_parser import analyze_clf_data
 from utils import *
+from output_cli import display_insights
 
 
 def parse_arguments():
@@ -51,49 +52,6 @@ def display_available_keys(keys):
     print("\nAvailable keys in the parsed data:")
     for idx, key in enumerate(keys, 1):
         print(f"{idx}. {key}")
-    print("0. EVERYTHING")
-
-
-def get_user_choice(keys):
-    """
-    Prompt the user to select keys by entering their corresponding numbers.
-
-    Args:
-        keys (list): List of keys available in the parsed data.
-
-    Returns:
-        list or None: List of selected keys or None if the user chooses to quit.
-    """
-    while True:
-        choice = input(
-            "\nEnter numbers corresponding to keys from the list above separated by commas (e.g., '1,3') to view their data, or 'q' to quit: ")
-
-        # Remove trailing comma, if present
-        if choice.endswith(","):
-            choice = choice[:-1]
-
-        # q for closing the app
-        if choice == 'q':
-            return 'q'
-
-        # 0 for getting all keys
-        if choice == '0':
-            return keys
-
-        selected_keys = []
-        invalid_choice = False
-        for ch in choice.split(","):
-            ch = ch.strip()
-            if ch.isdigit() and 1 <= int(ch) <= len(keys):
-                selected_keys.append(keys[int(ch) - 1])
-            else:
-                print(
-                    f"Invalid choice: '{ch}'. Please select valid numbers or 'q' to quit.")
-                invalid_choice = True
-                break  # Break out of the loop if an invalid choice is found
-
-        if not invalid_choice:
-            return selected_keys
 
 
 def print_selected_data(parsed_data, selected_keys, max_width=50):
@@ -131,64 +89,122 @@ def print_selected_data(parsed_data, selected_keys, max_width=50):
         print("  |  ".join(formatted_values))
 
 
-def user_interaction2(parsed_data):
+def get_user_input(prompt, valid_choices=None, validation_func=None):
+    """
+    Prompt the user for input and validate it.
+
+    Args:
+        prompt (str): Message to display to the user.
+        valid_choices (list or None): List of valid choices if applicable, None otherwise.
+        validation_func (func): Optional validation function to provide custom validation.
+
+    Returns:
+        str: User's input.
+    """
+    while True:
+        choice = input(prompt).strip().lower()
+
+        # Check against valid_choices
+        if valid_choices and choice not in valid_choices:
+            print("Invalid choice. Please try again.")
+            continue
+
+        # Check with validation_func
+        if validation_func:
+            is_valid, message = validation_func(choice)
+            if not is_valid:
+                print(message)
+                continue
+
+        return choice
+
+
+def validate_choice_for_keys(choice, keys):
+    """
+    Validate user choice for keys selection.
+
+    Args:
+        choice (str): User's choice to validate.
+        keys (list): List of keys for validation context.
+
+    Returns:
+        tuple: (is_valid (bool), message (str))
+    """
+    if choice == 'q' or choice == '0':
+        return True, ""
+
+    for ch in choice.split(","):
+        ch = ch.strip()
+        if not ch.isdigit() or not (1 <= int(ch) <= len(keys)):
+            return False, f"Invalid choice: '{ch}'. Use numbers from the list or 'q'."
+
+    return True, ""
+
+
+def get_user_choice(keys):
+    """
+    Prompt the user to select keys by entering their corresponding numbers.
+
+    Args:
+        keys (list): List of keys available in the parsed data.
+
+    Returns:
+        list or str: List of selected keys or 'q' if the user chooses to quit.
+    """
+    prompt = ("\nChoose keys to view by entering their numbers separated by commas (e.g., '1,3'). "
+              "Enter '0' for all keys or 'q' to return to the main menu: ")
+
+    while True:
+        choice = get_user_input(
+            prompt, validation_func=lambda x: validate_choice_for_keys(x, keys))
+
+        if choice == 'q':
+            return 'q'
+
+        if choice == '0':
+            return keys
+
+        selected_keys = [keys[int(ch) - 1]
+                         for ch in choice.split(",") if ch.strip().isdigit()]
+        return selected_keys
+
+
+def user_interaction(parsed_data, args):
     """
     Interact with the user: display available keys, get user's choice, and display selected data.
 
     Args:
         parsed_data (list): Parsed log data.
     """
-    # Welcome text
     display_welcome_message()
 
-    # Print the analyzed log file
-    analyze_clf_data(parsed_data)
+    valid_choices = ['a', 's', 'q', 'w']
+    prompt = "Would you like LogLoom to (A)nalyze the log, (S)elect keys to view or display the (W)elcome Message? Enter 'a', 's' or 'w'. Or enter 'q' to quit: "
 
-    keys = list(parsed_data[0].keys())
     while True:
-        display_available_keys(keys)
-        selected_keys = get_user_choice(keys)
+        action = get_user_input(prompt, valid_choices)
 
-        if selected_keys == 'q':
+        if action == 'q':
             print("Exiting the program. Goodbye!")
             break
-        if not selected_keys:
-            continue
-        print_selected_data(parsed_data, selected_keys)
 
+        if action == 'a':
+            insights = analyze_log_data(parsed_data, systemd_config)
+            lines_in_file = count_lines_in_file(args.file_path)
+            lines_in_parsed_data = count_lines_in_list(parsed_data)
+            display_insights(insights, lines_in_file, lines_in_parsed_data)
+            # analyze_clf_data(parsed_data)
+        elif action == 's':
+            keys = list(parsed_data[0].keys())
+            while True:
+                display_available_keys(keys)
+                selected_keys = get_user_choice(keys)
 
-def user_interaction(parsed_data):
-    """
-    Interact with the user: display available keys, get user's choice, and display selected data.
-
-    Args:
-        parsed_data (list): Parsed log data.
-    """
-    # Welcome text
-    display_welcome_message()
-
-    action = input(
-        "Would you like to (A)nalyze the log or (S)elect keys to view? Enter 'A' or 'S'. Or enter 'Q' to quit: ").lower()
-
-    if action == 'q':
-        print("Exiting the program. Goodbye!")
-        return
-
-    if action == 'a':
-        # Print the analyzed log file
-        analyze_clf_data(parsed_data)
-
-    elif action == 's':
-        keys = list(parsed_data[0].keys())
-        while True:
-            display_available_keys(keys)
-            selected_keys = get_user_choice(keys)
-
-            if selected_keys == 'q':
-                print("Exiting the program. Goodbye!")
-                break
-            if not selected_keys:
-                continue
-            print_selected_data(parsed_data, selected_keys)
-    else:
-        print("Invalid choice. Please select 'A' or 'S'.")
+                if selected_keys == 'q':
+                    print("Returning to main menu.")
+                    break
+                if not selected_keys:
+                    continue
+                print_selected_data(parsed_data, selected_keys)
+        elif action == 'w':
+            display_welcome_message()

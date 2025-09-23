@@ -48,7 +48,7 @@ def display_welcome_message():
     print(message)
 
 
-def calculate_time_difference(start_time, end_time, time_format='%d/%b/%Y %H:%M:%S'):
+def calculate_time_difference(start_time, end_time, time_format='%Y-%m-%d %H:%M:%S'):
     """Calculate the difference in minutes between two timestamps."""
 
     # Ensure that start_time and end_time are datetime objects
@@ -66,7 +66,59 @@ def calculate_time_difference(start_time, end_time, time_format='%d/%b/%Y %H:%M:
     return int(difference.total_seconds() / 60)  # Convert to minutes
 
 
+def get_range(items):
+    """Gets the range of items."""
+    return {"range": (min(items), max(items))}
+
+
+def time_difference(items):
+    """Calculates time difference between earliest and latest timestamp."""
+    times = [datetime.strptime(ts, "%Y-%m-%d %H:%M:%S") for ts in items]
+    delta = max(times) - min(times)
+    return {"time_difference": delta.total_seconds() / 60}
+
+
+def get_counts(items):
+    """Gets the counts of each unique item."""
+    counts = {}
+    for item in items:
+        counts[item] = counts.get(item, 0) + 1
+    return {"counts": counts}
+
+
 def count_lines_in_file(file_path):
     """Count the number of lines in a file."""
     with open(file_path, 'r') as file:
         return sum(1 for _ in file)
+
+
+def count_lines_in_list(lst):
+    """Returns the number of items in a list."""
+    return len(lst)
+
+
+def analyze_log_data(parsed_data, config):
+    insights = {}
+    for key, functions in config.items():
+        for function in functions:
+            items = [entry[key] for entry in parsed_data]
+            result = function(items)
+            if key in insights:
+                insights[key].update(result)
+            else:
+                insights[key] = result
+    return insights
+
+
+clf_config = {
+    "timestamp": [get_range, time_difference],
+    "status": [get_counts],
+    "ip": [get_counts]
+}
+
+systemd_config = {
+    "timestamp": [get_range, time_difference],
+    "hostname": [get_counts],
+    "service": [get_counts],
+    "pid": [get_counts]
+}
