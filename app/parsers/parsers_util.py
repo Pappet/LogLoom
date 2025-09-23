@@ -2,6 +2,7 @@ from .log_format import LogFormat
 from .clf_parser import CLFParser
 from .syslog_parser import SyslogParser
 from .systemd_journal_parser import SystemdJournalParser
+from .json_parser import JSONParser
 from utils import read_log_file
 from datetime import datetime
 import re
@@ -23,6 +24,8 @@ def get_parser_for_format(log_format):
         return SyslogParser()
     elif log_format == LogFormat.SYSTEMD.value:
         return SystemdJournalParser()
+    elif log_format == LogFormat.JSON.value:
+        return JSONParser()
     else:
         raise ValueError(f"Unsupported log format: {log_format}")
 

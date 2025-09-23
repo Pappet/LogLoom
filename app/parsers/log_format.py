@@ -4,3 +4,4 @@ class LogFormat(Enum):
     CLF = "CLF"
     SYSLOG = "Syslog"
     SYSTEMD = "Systemd"
+    JSON = "JSON"
