@@ -23,7 +23,7 @@ git clone https://github.com/<dein-account>/LogLoom.git
 cd LogLoom
 
 # Beispiel: Apache-Zugriffslog im Common Log Format analysieren
-python app/main.py --file-path pfad/zur/access.log --format clf
+python app/main.py --file_path pfad/zur/access.log --format CLF
 ```
 
 Während der Analyse kannst du interaktiv auswählen, welche Felder angezeigt oder welche Auswertungen ausgeführt werden sollen.
