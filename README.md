@@ -7,7 +7,7 @@ LogLoom ist ein leichtgewichtiges Kommandozeilenwerkzeug, das unterschiedliche L
 - [Lokale Installation als CLI](#lokale-installation-als-cli)
 - [Verzeichnisstruktur](#verzeichnisstruktur)
 - [Programmablauf](#programmablauf)
-- [Kommandozeilenoberfläche](#kommandozeilenoberflche)
+- [Kommandozeilenoberfläche](#kommandozeilenoberfläche)
 - [Parser-Architektur](#parser-architektur)
 - [Hilfsfunktionen & Analysen](#hilfsfunktionen--analysen)
 - [Erweiterbarkeit](#erweiterbarkeit)
@@ -25,8 +25,6 @@ cd LogLoom
 # Beispiel: Apache-Zugriffslog im Common Log Format analysieren
 python app/main.py --file_path pfad/zur/access.log --format CLF
 ```
-
-Während der Analyse kannst du interaktiv auswählen, welche Felder angezeigt oder welche Auswertungen ausgeführt werden sollen.
 
 ## Lokale Installation als CLI
 
